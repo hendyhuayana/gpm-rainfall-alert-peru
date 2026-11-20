@@ -19,6 +19,8 @@ It accumulates rainfall over the last 24 and 48 hours, assigns an alert level to
 4. Computes the maximum alert level and rainfall per region (FAO GAUL level 1).
 5. Exports the alert raster (GeoTIFF) and the regional table (CSV) to Google Drive.
 
+**Data latency:** the IMERG V07 collection in Earth Engine is the *Final* run, published about 3–4 months after observation. The script prints the latest available date and warns if a window has fewer images than expected, so it is suited to analysing past events rather than real-time alerts. For near real time, use the IMERG Early/Late runs or national products (e.g. SENAMHI).
+
 The thresholds are illustrative. For operational use they should be calibrated with local rain-gauge records and historical events, and the result is more useful when crossed with a hazard susceptibility map.
 
 ## Usage
