@@ -25,10 +25,19 @@ var regions = ee.FeatureCollection('FAO/GAUL/2015/level1')
 // IMERG: half-hourly precipitation rate in mm/h
 var imerg = ee.ImageCollection('NASA/GPM_L3/IMERG_V07').select('precipitation');
 var end = ee.Date(END_DATE);
+print('Latest IMERG image available:',
+  ee.Date(imerg.sort('system:time_start', false).first().get('system:time_start')));
 
 function accumulate(hours) {
   var col = imerg.filterDate(end.advance(-hours, 'hour'), end);
-  print('IMERG images in ' + hours + ' h window:', col.size());
+  var expected = hours * 2;  // one image every 30 min
+  // IMERG V07 Final is published with a delay of ~3-4 months: for recent dates
+  // the window is empty or incomplete and the totals would be underestimated.
+  print(ee.String('IMERG images in ' + hours + ' h window: ')
+    .cat(ee.Number(col.size()).format('%d')).cat(' of ' + expected)
+    .cat(ee.Algorithms.If(col.size().lt(expected),
+      '  WARNING: incomplete window, rainfall is underestimated (check END_DATE / data latency)',
+      '')));
   // each image covers 0.5 h, so mm/h * 0.5 = mm
   return col.sum().multiply(0.5).rename('p' + hours + 'h').clip(country);
 }
